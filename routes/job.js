@@ -21,13 +21,14 @@ router.post("/", authMiddleware, async (req, res)=>{
 
 router.get("/", async (req, res)=>{
     const isAuthenticated = isAuth(req);
-    const jobs = isAuthenticated ? await Job.find() : await Job.find().select("-_id -creator -__v -about -information");
+    const jobs = isAuthenticated ? await Job.find() : await Job.find().select("-_id -creator -about -information");
+    // const canEdit = isAuthenticated ? req.user.toString() === job.creator.toString()  : false;
     res.status(200).json(jobs);
 })
 
 router.get("/:id", validateRequest({
     params: z.object({
-        id: z.string().uuid(),
+        id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId"),
     })
 }), authMiddleware, async (req, res)=>{
     const {id} = req.params;
